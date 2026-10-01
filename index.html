@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pemantauan Jentik DBD</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f1;--card:#fff;--ink:#10302b;--mute:#557069;--line:#cfdcd8;--teal:#0f766e;--tealbg:#d9efeb;--amb:#a86f00;--ambbg:#fbecc4;--red:#b3261e;--redbg:#f9dcd9;--grn:#1d7a3a;--grnbg:#d8f0de;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1a18;--card:#152522;--ink:#e3f0ed;--mute:#8fada6;--line:#2a403b;--teal:#4fd1c5;--tealbg:#123a36;--amb:#f0c04a;--ambbg:#3b2f0d;--red:#ff8b82;--redbg:#3f1a17;--grn:#7ee29a;--grnbg:#123322}}
+:root[data-theme="dark"]{--bg:#0d1a18;--card:#152522;--ink:#e3f0ed;--mute:#8fada6;--line:#2a403b;--teal:#4fd1c5;--tealbg:#123a36;--amb:#f0c04a;--ambbg:#3b2f0d;--red:#ff8b82;--redbg:#3f1a17;--grn:#7ee29a;--grnbg:#123322}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Figtree,system-ui,Arial,sans-serif}
+header{padding:22px 18px 14px;max-width:720px;margin:0 auto}
+h1{font-size:1.7rem;line-height:1.15;margin:0 0 4px;font-weight:800}
+header p{margin:0;color:var(--mute)}
+nav{display:flex;gap:8px;max-width:720px;margin:0 auto;padding:0 18px 12px}
+nav button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;cursor:pointer}
+nav button[aria-pressed=true]{background:var(--teal);color:var(--bg);border-color:var(--teal)}
+main{max-width:720px;margin:0 auto;padding:0 18px 60px}
+.prog{display:flex;gap:4px;margin-bottom:14px}
+.prog i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.prog i.on{background:var(--teal)}
+section.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;display:none}
+section.step.show{display:block}
+h2{font-size:1.2rem;margin:0 0 12px}
+h3{font-size:1rem;margin:18px 0 6px;color:var(--teal)}
+label.f{display:block;font-weight:600;margin:12px 0 4px}
+input[type=text],input[type=date],input[type=time],input[type=number],textarea,select{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.opts{display:flex;flex-wrap:wrap;gap:8px}
+.opts label{display:flex;align-items:center;gap:6px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;cursor:pointer;background:var(--bg)}
+.opts label:has(input:checked){background:var(--tealbg);border-color:var(--teal)}
+.opts input{accent-color:var(--teal)}
+button.p,button.s,a.btn{font:inherit;font-weight:600;padding:11px 18px;border-radius:10px;border:1px solid var(--teal);cursor:pointer;text-decoration:none;display:inline-block}
+button.p{background:var(--teal);color:var(--bg)}
+button.s,a.btn{background:transparent;color:var(--teal)}
+button:focus-visible,input:focus-visible,a:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid var(--amb);outline-offset:2px}
+.row{display:flex;gap:10px;margin-top:20px;justify-content:space-between}
+.hide{display:none!important}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.thumbs img{width:76px;height:76px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.note{font-size:.88rem;color:var(--mute);margin-top:6px}
+.res{border-radius:14px;padding:18px;margin-bottom:14px}
+.res.low{background:var(--grnbg);color:var(--grn)}.res.mid{background:var(--ambbg);color:var(--amb)}.res.high{background:var(--redbg);color:var(--red)}
+.res b.big{font-size:1.5rem;display:block}
+.res p{color:var(--ink);margin:6px 0}
+ol.rec{padding-left:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;font-size:.85rem;font-weight:700}
+.tag.low{background:var(--grnbg);color:var(--grn)}.tag.mid{background:var(--ambbg);color:var(--amb)}.tag.high{background:var(--redbg);color:var(--red)}
+.err{color:var(--red);font-weight:600;margin-top:10px}
+@media (prefers-reduced-motion:no-preference){section.step.show{animation:in .2s}}
+@keyframes in{from{opacity:.4}to{opacity:1}}
+</style>
+</head>
+<body>
+<header>
+<h1>Pemantauan Jentik DBD</h1>
+<p>Catat kondisi sebelum, tindakan, dan hasil intervensi. Sistem menilai risiko lingkungan dan menyarankan langkah berikutnya.</p>
+</header>
+<nav>
+<button id="tabBaru" aria-pressed="true">Laporan baru</button>
+<button id="tabRiwayat" aria-pressed="false">Riwayat &amp; pengingat</button>
+</nav>
+<main>
+<div id="viewBaru">
+<div class="prog" id="prog"></div>
+<form id="f" onsubmit="return false">
+
+<section class="step" data-s="1">
+<h2>Data pelapor &amp; lokasi rumah</h2>
+<label class="f" for="nama">Nama</label>
+<input type="text" id="nama" placeholder="Masukkan nama">
+<label class="f" for="alamat">Alamat rumah</label>
+<textarea id="alamat" rows="2" placeholder="Jalan, RT/RW, kelurahan"></textarea>
+<label class="f" for="koor">Titik peta (opsional)</label>
+<div style="display:flex;gap:8px">
+<input type="text" id="koor" placeholder="Lintang, bujur">
+<button type="button" class="s" id="gps">Ambil lokasi</button>
+</div>
+<p class="note" id="mapInfo">Titik ini dipakai petugas untuk menemukan rumah saat tindak lanjut.</p>
+<a class="btn hide" id="mapLink" target="_blank" rel="noopener" style="margin-top:8px">Lihat di Google Maps</a>
+</section>
+
+<section class="step" data-s="2">
+<h2>Kegiatan / intervensi</h2>
+<p class="note">Pilih satu atau lebih. Halaman berikutnya menyesuaikan pilihanmu.</p>
+<div class="opts" id="kegiatan"></div>
+</section>
+
+<section class="step" data-s="3">
+<h2>Kondisi sebelum intervensi</h2>
+<div id="sebelumWrap"></div>
+<h3>Foto kondisi sebelum intervensi</h3>
+<input type="file" accept="image/*" multiple data-foto="sebelum">
+<div class="thumbs" id="th-sebelum"></div>
+</section>
+
+<section class="step" data-s="4">
+<h2>Lokasi &amp; waktu intervensi</h2>
+<label class="f">Area</label>
+<div class="opts" id="area"></div>
+<label class="f" for="tgl">Tanggal</label>
+<input type="date" id="tgl">
+<label class="f" for="jam">Waktu</label>
+<input type="time" id="jam">
+</section>
+
+<section class="step" data-s="5">
+<h2>Tindakan intervensi</h2>
+<div id="metodeWrap"></div>
+<label class="f" for="catatan">Catatan</label>
+<textarea id="catatan" rows="3" placeholder="Jelaskan tindakan yang dilakukan"></textarea>
+</section>
+
+<section class="step" data-s="6">
+<h2>Kondisi setelah intervensi</h2>
+<label class="f">Genangan air masih ada?</label>
+<div class="opts" id="sGen"></div>
+<label class="f">Jentik setelah tindakan</label>
+<div class="opts" id="sJen"></div>
+<label class="f">Breeding site berhasil dihilangkan?</label>
+<div class="opts" id="sBre"></div>
+<h3>Foto setelah intervensi</h3>
+<input type="file" accept="image/*" multiple data-foto="sesudah">
+<div class="thumbs" id="th-sesudah"></div>
+</section>
+
+<section class="step" data-s="7" id="hasil"></section>
+
+<div class="err hide" id="err"></div>
+<div class="row" id="nav">
+<button type="button" class="s" id="prev">Kembali</button>
+<button type="button" class="p" id="next">Lanjut</button>
+</div>
+</form>
+</div>
+
+<div id="viewRiwayat" class="hide">
+<div id="list"></div>
+</div>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const KEG=[["3m","3M Plus"],["larv","Larvasida"],["fog","Fogging"],["ling","Pengendalian lingkungan"],["breed","Pemberantasan breeding site"],["edu","Edukasi masyarakat"],["surv","Pemantauan/surveilans jentik"]];
+const AREA=["Kamar","Kamar mandi","Dapur","Halaman","Balkon","Selokan","Area bersama","Lainnya"];
+const WADAH=["Bak mandi","Ember","Pot tanaman","Tempat minum hewan","Talang air","Botol/kaleng","Ban bekas","Lainnya"];
+const KWADAH=["Terisi air","Terdapat genangan","Air tidak mengalir","Wadah terbuka","Jarang dibersihkan","Tempat teduh","Menampung air hujan"];
+const M={
+"3m":{t:"3M Plus",g:[["Tindakan yang dilakukan","c",["Menguras tempat penampungan air","Menutup tempat penampungan air","Mengubur/membuang barang bekas","Membersihkan wadah","Mengganti air","Menghilangkan genangan","Mendaur ulang barang bekas","Lainnya"]]]},
+"larv":{t:"Larvasida",g:[["Jenis tempat yang diberi larvasida","c",["Bak mandi","Drum","Ember","Toren","Tempat penampungan air lainnya"]],["Ditemukan jentik sebelum pemberian?","r",["Ya","Tidak"]],["Jumlah/perkiraan jentik","n"],["Jenis larvasida","t"],["Dosis","n"],["Satuan","r",["gram","ml","Lainnya"]],["Evaluasi setelah intervensi","r",["Jentik tidak ditemukan","Jentik masih ditemukan","Tidak dilakukan pemeriksaan ulang"]]]},
+"fog":{t:"Fogging (pencatatan saja)",g:[["Lokasi fogging","c",["Rumah","Sekolah","Pesantren","Area pemukiman","Tempat umum","Lainnya"]],["Alasan dilakukan fogging","c",["Kasus/indikasi DBD di sekitar lokasi","Ditemukan banyak nyamuk","Kegiatan pengendalian wilayah","Lainnya"]],["Area yang difogging","c",["Dalam rumah","Halaman","Gang","Area publik","Lainnya"]],["Evaluasi","r",["Nyamuk masih ditemukan","Nyamuk berkurang","Tidak dilakukan evaluasi"]]],n:"Bagian ini hanya mencatat dan mengevaluasi kegiatan, bukan petunjuk teknis penggunaan insektisida."},
+"ling":{t:"Pengendalian lingkungan",g:[["Jenis pengendalian","c",["Membersihkan selokan","Menghilangkan genangan","Membersihkan halaman","Mengelola sampah/barang bekas","Memperbaiki saluran air","Menutup wadah air","Menghilangkan tempat berpotensi breeding site","Lainnya"]],["Lokasi","c",["Kamar mandi","Halaman","Selokan","Dapur","Atap","Area bersama","Lainnya"]],["Genangan masih ada?","r",["Ya","Tidak"]],["Breeding site masih ada?","r",["Ya","Tidak","Sebagian"]]]},
+"breed":{t:"Pemberantasan breeding site",g:[["Jenis breeding site","c",["Bak air","Ember","Pot tanaman","Ban bekas","Botol/kaleng","Talang air","Selokan","Tempat penampungan air","Lainnya"]],["Tindakan","c",["Mengosongkan wadah","Membersihkan wadah","Memindahkan wadah","Menutup wadah","Membuang barang","Memperbaiki kondisi lingkungan","Lainnya"]],["Breeding site berhasil dihilangkan?","r",["Ya","Tidak","Sebagian"]],["Jentik setelah tindakan","r",["Tidak ditemukan","Masih ditemukan"]]]},
+"edu":{t:"Edukasi masyarakat",g:[["Sasaran edukasi","c",["Keluarga","Tetangga","Sekolah","Kelompok warga","Lainnya"]]]},
+"surv":{t:"Pemantauan/surveilans jentik",g:[["Jenis wadah diperiksa","c",WADAH]]}
+};
+let step=1,fotoN={sebelum:[],sesudah:[]},last=null;
+function opts(name,list,type){return list.map((v,i)=>`<label><input type="${type}" name="${name}" value="${v}">${v}</label>`).join("")}
+function group(id,g){return g.map((x,i)=>{const n=id+"_"+i;let h=`<label class="f">${x[0]}</label>`;
+ if(x[1]=="c")h+=`<div class="opts">${opts(n,x[2],"checkbox")}</div>`;
+ else if(x[1]=="r")h+=`<div class="opts">${opts(n,x[2],"radio")}</div>`;
+ else if(x[1]=="n")h+=`<input type="number" min="0" name="${n}">`;
+ else h+=`<input type="text" name="${n}">`;return h}).join("")}
+$("#kegiatan").innerHTML=KEG.map(([k,v])=>`<label><input type="checkbox" name="keg" value="${k}">${v}</label>`).join("");
+$("#area").innerHTML=opts("area",AREA,"radio");
+$("#sGen").innerHTML=opts("sGen",["Ya","Tidak"],"radio");
+$("#sJen").innerHTML=opts("sJen",["Tidak ditemukan","Masih ditemukan","Tidak diperiksa ulang"],"radio");
+$("#sBre").innerHTML=opts("sBre",["Ya","Tidak","Sebagian"],"radio");
+$("#sebelumWrap").innerHTML=`<label class="f">Apakah terdapat genangan air?</label><div class="opts">${opts("bGen",["Ya","Tidak"],"radio")}</div>
+<label class="f">Apakah ditemukan jentik?</label><div class="opts">${opts("bJen",["Ya","Tidak"],"radio")}</div>
+<div id="jenDetail" class="hide"><label class="f">Kondisi jentik</label><div class="opts">${opts("bKJ",["Jentik terlihat bergerak","Bergerak saat wadah diganggu","Pupa ditemukan"],"checkbox")}</div></div>
+<label class="f">Kondisi wadah</label><div class="opts">${opts("bKW",KWADAH,"checkbox")}</div>
+<label class="f">Jenis wadah</label><div class="opts">${opts("bJW",WADAH,"checkbox")}</div>`;
+document.addEventListener("change",e=>{if(e.target.name=="bJen")$("#jenDetail").classList.toggle("hide",e.target.value!="Ya")});
+$("#tgl").value=new Date().toISOString().slice(0,10);
+$("#jam").value=new Date().toTimeString().slice(0,5);
+function vals(n){return [...document.querySelectorAll(`[name="${n}"]:checked`)].map(x=>x.value)}
+function val(n){return vals(n)[0]||""}
+function tv(n){const e=document.querySelector(`[name="${n}"]`);return e?e.value:""}
+function upMap(){const c=$("#koor").value.trim(),a=$("#mapLink");if(/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/.test(c)){a.href="https://www.google.com/maps?q="+encodeURIComponent(c.replace(/\s/g,""));a.classList.remove("hide")}else a.classList.add("hide")}
+$("#koor").addEventListener("input",upMap);
+$("#gps").onclick=()=>{if(!navigator.geolocation){$("#mapInfo").textContent="Peramban tidak mendukung lokasi. Ketik koordinat manual.";return}
+$("#mapInfo").textContent="Mencari lokasi…";
+navigator.geolocation.getCurrentPosition(p=>{$("#koor").value=p.coords.latitude.toFixed(6)+", "+p.coords.longitude.toFixed(6);$("#mapInfo").textContent="Lokasi tersimpan. Periksa lewat tautan peta.";upMap()},()=>{$("#mapInfo").textContent="Lokasi tidak bisa diambil. Izinkan akses lokasi atau ketik koordinat manual."},{enableHighAccuracy:true,timeout:10000})};
+document.querySelectorAll("[data-foto]").forEach(inp=>inp.addEventListener("change",()=>{const k=inp.dataset.foto,box=$("#th-"+k);fotoN[k]=[...inp.files];box.innerHTML="";fotoN[k].forEach(f=>{const im=new Image();im.alt="Foto "+k;im.src=URL.createObjectURL(f);box.appendChild(im)})}));
+function buildMetode(){const ks=vals("keg");$("#metodeWrap").innerHTML=ks.map(k=>`<h3>${M[k].t}</h3>${M[k].n?`<p class="note">${M[k].n}</p>`:""}${group("m_"+k,M[k].g)}`).join("")}
+function prog(){$("#prog").innerHTML=[1,2,3,4,5,6,7].map(i=>`<i class="${i<=step?"on":""}"></i>`).join("")}
+function show(){document.querySelectorAll("section.step").forEach(s=>s.classList.toggle("show",+s.dataset.s==step));prog();
+$("#prev").classList.toggle("hide",step==1);$("#next").textContent=step==6?"Simpan & lihat hasil":"Lanjut";$("#nav").classList.toggle("hide",step==7);
+$("#err").classList.add("hide");window.scrollTo(0,0)}
+function valid(){if(step==1&&!$("#nama").value.trim())return"Isi nama terlebih dahulu.";
+if(step==1&&!$("#alamat").value.trim())return"Isi alamat rumah terlebih dahulu.";
+if(step==2&&!vals("keg").length)return"Pilih minimal satu kegiatan.";
+if(step==3&&(!val("bGen")||!val("bJen")))return"Jawab pertanyaan genangan dan jentik.";
+if(step==4&&!val("area"))return"Pilih area intervensi.";
+if(step==6&&(!val("sGen")||!val("sJen")||!val("sBre")))return"Lengkapi ketiga pertanyaan hasil.";return""}
+$("#next").onclick=()=>{const e=valid();if(e){const b=$("#err");b.textContent=e;b.classList.remove("hide");return}
+if(step==2)buildMetode();if(step==6){finish();return}step++;show()};
+$("#prev").onclick=()=>{step--;show()};
+function analyze(){const gen=val("sGen"),jen=val("sJen"),bre=val("sBre");
+let fogMasih=false;vals("keg").includes("fog")&&(fogMasih=[...document.querySelectorAll('[name^="m_fog_"]:checked')].some(x=>x.value=="Nyamuk masih ditemukan"));
+const larvMasih=[...document.querySelectorAll('[name^="m_larv_"]:checked')].some(x=>x.value=="Jentik masih ditemukan");
+const sebelum=(val("bGen")=="Ya"||val("bJen")=="Ya"||vals("bKJ").includes("Pupa ditemukan"))?"Ada potensi sumber DBD sebelum intervensi":"Tidak tampak potensi sumber DBD sebelum intervensi";
+let lv,ef;
+if(jen=="Masih ditemukan"||larvMasih||bre=="Tidak"){lv="high"}
+else if(gen=="Ya"||bre=="Sebagian"||jen=="Tidak diperiksa ulang"||fogMasih){lv="mid"}
+else lv="low";
+ef=lv=="low"?"TINGGI":lv=="mid"?"SEDANG":"RENDAH";
+const R={low:{t:"RISIKO LINGKUNGAN RENDAH",h:"Tidak ditemukan tanda keberadaan jentik dan breeding site berhasil dikendalikan. Kondisi lingkungan setelah intervensi menunjukkan perbaikan.",r:["Pertahankan kondisi lingkungan saat ini. Lakukan pemeriksaan berkala agar tidak muncul kembali tempat yang berpotensi menjadi breeding site.","Lakukan pemantauan rutin. Periksa tempat penampungan air, pot tanaman, barang bekas, dan area lain yang berpotensi menampung air.","Pertahankan tindakan pencegahan. Jangan menunggu sampai ditemukan jentik untuk kembali melakukan pengendalian lingkungan."],d:14},
+mid:{t:"RISIKO LINGKUNGAN SEDANG",h:"Kondisi lingkungan mengalami perbaikan, tetapi masih ditemukan faktor yang berpotensi menjadi breeding site.",r:["Lakukan pengendalian ulang pada area yang masih berpotensi menjadi breeding site.","Periksa kembali tempat penampungan air dan area sekitar untuk memastikan tidak terdapat genangan atau wadah yang berpotensi menjadi tempat perkembangbiakan nyamuk.","Lakukan pemantauan lebih sering sampai kondisi lingkungan menunjukkan hasil yang lebih baik.","Evaluasi kembali intervensi yang telah dilakukan. Identifikasi bagian yang belum berhasil dikendalikan dan lakukan tindakan lanjutan."],d:7},
+high:{t:"RISIKO LINGKUNGAN TINGGI",h:"Masih ditemukan faktor lingkungan yang mendukung keberadaan breeding site. Intervensi sebelumnya belum menunjukkan hasil yang optimal.",r:["Segera lakukan pengendalian ulang pada breeding site yang masih aktif.","Hilangkan sumber genangan dan wadah yang berpotensi menjadi breeding site.","Lakukan pemeriksaan ulang setelah intervensi untuk memastikan jentik/pupa sudah tidak ditemukan.","Identifikasi sumber breeding site yang kembali muncul dan lakukan pengendalian pada sumber tersebut.","Laporkan kepada petugas terkait apabila kondisi memerlukan penanganan lebih lanjut, sesuai mekanisme yang berlaku di wilayah tersebut."],d:3}}[lv];
+return{lv,ef,sebelum,...R}}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function ymd(d){return d.toISOString().slice(0,10)}
+function finish(){const a=analyze(),nx=new Date(Date.now()+a.d*864e5);
+const rec={id:Date.now(),nama:$("#nama").value.trim(),alamat:$("#alamat").value.trim(),koor:$("#koor").value.trim(),keg:vals("keg").map(k=>M[k].t),area:val("area"),tgl:$("#tgl").value,jam:$("#jam").value,lv:a.lv,judul:a.t,next:ymd(nx),foto:fotoN.sebelum.length+"/"+fotoN.sesudah.length};
+try{const l=JSON.parse(localStorage.getItem("jentik")||"[]");l.unshift(rec);localStorage.setItem("jentik",JSON.stringify(l))}catch(e){}
+last=rec;
+const cal="https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent("Cek ulang jentik: "+rec.alamat)+"&dates="+rec.next.replace(/-/g,"")+"/"+ymd(new Date(nx.getTime()+864e5)).replace(/-/g,"")+"&details="+encodeURIComponent("Periksa tempat penampungan air dan area berpotensi breeding site.");
+const map=rec.koor?`<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${encodeURIComponent(rec.koor.replace(/\s/g,""))}">Buka lokasi di peta</a>`:"";
+$("#hasil").innerHTML=`<h2>Kesimpulan &amp; evaluasi</h2>
+<div class="res ${a.lv}"><b class="big">${a.t}</b><p><b>Sebelum:</b> ${a.sebelum}.</p><p><b>Efektivitas intervensi:</b> ${a.ef}.</p><p><b>Hasil evaluasi:</b> ${a.h}</p></div>
+<h3>Rekomendasi</h3><ol class="rec">${a.r.map(x=>`<li>${x}</li>`).join("")}</ol>
+<h3>Pengingat pemeriksaan ulang</h3>
+<label class="f" for="nx">Cek lagi pada</label><input type="date" id="nx" value="${rec.next}">
+<p class="note">Saran otomatis ${a.d} hari lagi. Ubah tanggal bila perlu, lalu tambahkan ke kalender.</p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><a class="btn" id="calA" target="_blank" rel="noopener" href="${cal}">Tambah ke kalender</a>${map}<button type="button" class="p" id="baru">Laporan baru</button></div>`;
+$("#nx").onchange=e=>{const v=e.target.value;if(!v)return;const d=new Date(v+"T00:00:00Z"),n=ymd(new Date(d.getTime()+864e5));
+$("#calA").href=cal.replace(/dates=\d+\/\d+/,"dates="+v.replace(/-/g,"")+"/"+n.replace(/-/g,""));
+try{const l=JSON.parse(localStorage.getItem("jentik")||"[]");if(l[0]&&l[0].id==rec.id){l[0].next=v;localStorage.setItem("jentik",JSON.stringify(l))}}catch(e){}};
+$("#baru").onclick=()=>{$("#f").reset();fotoN={sebelum:[],sesudah:[]};document.querySelectorAll(".thumbs").forEach(t=>t.innerHTML="");$("#tgl").value=new Date().toISOString().slice(0,10);$("#jenDetail").classList.add("hide");upMap();step=1;show()};
+step=7;show()}
+function riwayat(){let l=[];try{l=JSON.parse(localStorage.getItem("jentik")||"[]")}catch(e){}
+const t=ymd(new Date());
+$("#list").innerHTML=l.length?l.map(r=>{const c={low:"Rendah",mid:"Sedang",high:"Tinggi"}[r.lv];const due=r.next<=t;
+return`<div class="card"><span class="tag ${r.lv}">Risiko ${c}</span> <b>${esc(r.nama)}</b>
+<div>${esc(r.alamat)}</div><div class="note">${esc(r.tgl)} ${esc(r.jam)} · ${esc(r.area)} · ${esc(r.keg.join(", "))}</div>
+<div class="note">Foto sebelum/sesudah: ${esc(r.foto)}</div>
+<div style="margin-top:6px"><b>Cek ulang:</b> ${esc(r.next)}${due?' <span class="tag high">Sudah waktunya</span>':""}</div>
+<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${r.koor?`<a class="btn" target="_blank" rel="noopener" href="https://www.google.com/maps?q=${encodeURIComponent(r.koor.replace(/\s/g,""))}">Peta</a>`:""}<button class="s" data-del="${r.id}" type="button">Hapus</button></div></div>`}).join(""):'<div class="card">Belum ada laporan. Buat laporan pertama di tab Laporan baru.</div>';
+document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{try{localStorage.setItem("jentik",JSON.stringify(l.filter(x=>String(x.id)!=b.dataset.del)))}catch(e){}riwayat()})}
+function tab(b){$("#viewBaru").classList.toggle("hide",!b);$("#viewRiwayat").classList.toggle("hide",b);$("#tabBaru").setAttribute("aria-pressed",b);$("#tabRiwayat").setAttribute("aria-pressed",!b);if(!b)riwayat()}
+$("#tabBaru").onclick=()=>tab(true);$("#tabRiwayat").onclick=()=>tab(false);
+show();
+</script>
+</body>
+</html>
